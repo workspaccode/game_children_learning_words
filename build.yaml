@@ -1,0 +1,27 @@
+targets:
+  $default:
+    builders:
+      json_serializable:
+        options:
+          # Options configure how source code is generated for every
+          # `@JsonSerializable`-annotated class in the package.
+          #
+          # The default value for each is listed.
+          any_map: false
+          checked: false
+          constructor: ""
+          create_factory: true
+          create_to_json: true
+          disallow_unrecognized_keys: false
+          explicit_to_json: false
+          field_rename: none
+          generic_argument_factories: false
+          ignore_unannotated: false
+          include_if_null: true
+        generate_for:
+          - lib/models/user_model.dart
+          - lib/models/word_model.dart
+          - lib/models/subscription_model.dart
+          - lib/models/daily_activity_model.dart
+          - lib/models/classroom_model.dart
+          - lib/models/payment_model.dart

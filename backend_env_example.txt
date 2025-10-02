@@ -1,0 +1,274 @@
+# ================================
+# Flask Backend Environment Variables
+# تطبيق تعليم الأطفال الكلمات
+# ================================
+
+# ===============================
+# FLASK CONFIGURATION
+# ===============================
+SECRET_KEY=your-super-secret-key-change-in-production-min-32-chars
+DEBUG=True
+FLASK_ENV=development
+FLASK_APP=run.py
+
+# ===============================
+# FIREBASE CONFIGURATION  
+# ===============================
+FIREBASE_PROJECT_ID=your-firebase-project-id
+FIREBASE_CREDENTIALS_PATH=path/to/serviceAccountKey.json
+FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+FIREBASE_DATABASE_URL=https://your-project-default-rtdb.firebaseio.com/
+
+# ===============================
+# STRIPE CONFIGURATION
+# ===============================
+STRIPE_SECRET_KEY=sk_test_51xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+STRIPE_PUBLISHABLE_KEY=pk_test_51xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+STRIPE_API_VERSION=2023-10-16
+
+# ===============================
+# FAWRY CONFIGURATION (مصر)
+# ===============================
+FAWRY_MERCHANT_CODE=your_fawry_merchant_code
+FAWRY_SECRET_KEY=your_fawry_secret_key
+FAWRY_SANDBOX_URL=https://atfawry.fawrystaging.com
+FAWRY_PRODUCTION_URL=https://www.atfawry.com
+FAWRY_IS_SANDBOX=True
+
+# ===============================
+# VODAFONE CASH (مصر)
+# ===============================
+VODAFONE_CASH_API_KEY=your_vodafone_api_key
+VODAFONE_CASH_MERCHANT_ID=your_merchant_id
+VODAFONE_CASH_BASE_URL=https://api-preprod.vodafone.com.eg
+VODAFONE_CASH_IS_SANDBOX=True
+
+# ===============================
+# ORANGE CASH (مصر)
+# ===============================
+ORANGE_CASH_CLIENT_ID=your_orange_client_id
+ORANGE_CASH_CLIENT_SECRET=your_orange_client_secret
+ORANGE_CASH_BASE_URL=https://api.orange.eg
+ORANGE_CASH_IS_SANDBOX=True
+
+# ===============================
+# WE CASH (مصر)
+# ===============================
+WE_CASH_APP_ID=your_we_app_id
+WE_CASH_APP_SECRET=your_we_app_secret
+WE_CASH_BASE_URL=https://developer.te.eg
+WE_CASH_IS_SANDBOX=True
+
+# ===============================
+# ETISALAT CASH (مصر)
+# ===============================
+ETISALAT_CASH_MERCHANT_CODE=your_etisalat_merchant_code
+ETISALAT_CASH_SECRET=your_etisalat_secret
+ETISALAT_CASH_BASE_URL=https://api.etisalat.com.eg
+ETISALAT_CASH_IS_SANDBOX=True
+
+# ===============================
+# MADA (السعودية)
+# ===============================
+MADA_MERCHANT_ID=your_mada_merchant_id
+MADA_TERMINAL_ID=your_mada_terminal_id
+MADA_SECRET_KEY=your_mada_secret_key
+MADA_BASE_URL=https://api.mada.sa
+MADA_IS_SANDBOX=True
+
+# ===============================
+# BANK TRANSFER (مصر والسعودية)
+# ===============================
+BANK_TRANSFER_ENABLED=True
+# Egyptian Banks
+NBE_ACCOUNT_NUMBER=123456789012
+NBE_ACCOUNT_NAME=Education App Egypt
+CIB_ACCOUNT_NUMBER=987654321098
+CIB_ACCOUNT_NAME=Education App Egypt
+# Saudi Banks
+SABB_ACCOUNT_NUMBER=SA1234567890123456789012
+SABB_ACCOUNT_NAME=Education App Saudi
+RAJHI_ACCOUNT_NUMBER=SA9876543210987654321098
+RAJHI_ACCOUNT_NAME=Education App Saudi
+
+# ===============================
+# JWT CONFIGURATION
+# ===============================
+JWT_SECRET_KEY=jwt-super-secret-key-change-in-production-min-32-chars
+JWT_ACCESS_TOKEN_EXPIRES=86400
+JWT_REFRESH_TOKEN_EXPIRES=2592000
+JWT_ALGORITHM=HS256
+
+# ===============================
+# REDIS CONFIGURATION (Optional)
+# ===============================
+REDIS_URL=redis://localhost:6379/0
+REDIS_PASSWORD=your_redis_password
+REDIS_DB=0
+CACHE_ENABLED=True
+CACHE_DEFAULT_TIMEOUT=300
+
+# ===============================
+# CELERY CONFIGURATION (Background Tasks)
+# ===============================
+CELERY_BROKER_URL=redis://localhost:6379/1
+CELERY_RESULT_BACKEND=redis://localhost:6379/2
+CELERY_TASK_SERIALIZER=json
+CELERY_RESULT_SERIALIZER=json
+
+# ===============================
+# EMAIL CONFIGURATION (Optional)
+# ===============================
+MAIL_SERVER=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USE_TLS=True
+MAIL_USE_SSL=False
+MAIL_USERNAME=your-email@gmail.com
+MAIL_PASSWORD=your-app-password
+MAIL_DEFAULT_SENDER=your-email@gmail.com
+
+# ===============================
+# CORS CONFIGURATION
+# ===============================
+CORS_ORIGINS=http://localhost:3000,https://your-flutter-web-app.com,https://your-domain.com
+CORS_ALLOW_HEADERS=Content-Type,Authorization,X-User-Type
+CORS_METHODS=GET,POST,PUT,PATCH,DELETE,OPTIONS
+
+# ===============================
+# RATE LIMITING
+# ===============================
+RATE_LIMIT_ENABLED=True
+RATE_LIMIT_DEFAULT=200 per day, 50 per hour
+RATE_LIMIT_PAYMENT=10 per minute
+RATE_LIMIT_LOGIN=5 per minute
+
+# ===============================
+# SECURITY CONFIGURATION
+# ===============================
+SESSION_COOKIE_SECURE=False
+SESSION_COOKIE_HTTPONLY=True
+SESSION_COOKIE_SAMESITE=Lax
+PERMANENT_SESSION_LIFETIME=86400
+
+# ===============================
+# LOGGING CONFIGURATION
+# ===============================
+LOG_LEVEL=INFO
+LOG_FILE=logs/app.log
+LOG_MAX_BYTES=10240000
+LOG_BACKUP_COUNT=10
+
+# ===============================
+# DATABASE CONFIGURATION (if using SQLAlchemy for caching)
+# ===============================
+DATABASE_URL=sqlite:///cache.db
+SQLALCHEMY_TRACK_MODIFICATIONS=False
+
+# ===============================
+# API CONFIGURATION
+# ===============================
+API_VERSION=v1
+API_PREFIX=/api/v1
+API_TITLE=Game Children Learning Words API
+API_DESCRIPTION=Educational app for children with multi-gateway payment system
+
+# ===============================
+# WEBHOOK CONFIGURATION
+# ===============================
+WEBHOOK_SECRET=your-webhook-secret-key
+WEBHOOK_TIMEOUT=30
+WEBHOOK_RETRIES=3
+
+# ===============================
+# FILE UPLOAD CONFIGURATION
+# ===============================
+MAX_CONTENT_LENGTH=16777216
+UPLOAD_FOLDER=uploads
+ALLOWED_EXTENSIONS=jpg,jpeg,png,gif,pdf,mp3,mp4
+
+# ===============================
+# TIMEZONE & LOCALIZATION
+# ===============================
+TIMEZONE=UTC
+DEFAULT_LANGUAGE=ar
+SUPPORTED_LANGUAGES=ar,en
+BABEL_DEFAULT_LOCALE=ar
+BABEL_DEFAULT_TIMEZONE=UTC
+
+# ===============================
+# MONITORING & HEALTH CHECK
+# ===============================
+HEALTH_CHECK_ENABLED=True
+METRICS_ENABLED=True
+SENTRY_DSN=https://your-sentry-dsn@sentry.io/project-id
+
+# ===============================
+# DEVELOPMENT & DEBUG
+# ===============================
+TESTING=False
+WTF_CSRF_ENABLED=False
+PRESERVE_CONTEXT_ON_EXCEPTION=False
+
+# ===============================
+# PRODUCTION SETTINGS
+# ===============================
+# Set these in production:
+# DEBUG=False
+# FLASK_ENV=production  
+# STRIPE_SECRET_KEY=sk_live_...
+# JWT_SECRET_KEY=production-secret-key
+# REDIS_PASSWORD=strong-redis-password
+# SESSION_COOKIE_SECURE=True
+# FAWRY_IS_SANDBOX=False
+# VODAFONE_CASH_IS_SANDBOX=False
+# (etc. for all payment gateways)
+
+# ===============================
+# BACKUP & RECOVERY
+# ===============================
+BACKUP_ENABLED=True
+BACKUP_INTERVAL=daily
+BACKUP_RETENTION_DAYS=30
+BACKUP_STORAGE=firebase_storage
+
+# ===============================
+# NOTIFICATION SERVICES (Optional)
+# ===============================
+FCM_SERVER_KEY=your_fcm_server_key
+PUSH_NOTIFICATIONS_ENABLED=True
+SMS_PROVIDER=twilio
+SMS_ACCOUNT_SID=your_twilio_sid
+SMS_AUTH_TOKEN=your_twilio_token
+SMS_FROM_NUMBER=+1234567890
+
+# ===============================
+# ANALYTICS & TRACKING (Optional)
+# ===============================
+GOOGLE_ANALYTICS_ID=G-XXXXXXXXXX
+MIXPANEL_TOKEN=your_mixpanel_token
+ANALYTICS_ENABLED=True
+
+# ===============================
+# CDN & ASSET MANAGEMENT (Optional)
+# ===============================
+CDN_URL=https://cdn.your-domain.com
+STATIC_URL_PREFIX=/static
+MEDIA_URL_PREFIX=/media
+
+# ===============================
+# EXTERNAL SERVICES (Optional)  
+# ===============================
+TRANSLATE_API_KEY=your_google_translate_key
+SPEECH_TO_TEXT_API_KEY=your_speech_api_key
+TEXT_TO_SPEECH_API_KEY=your_tts_api_key
+
+# ===============================
+# FEATURE FLAGS
+# ===============================
+FEATURE_MOBILE_WALLETS=True
+FEATURE_BANK_TRANSFER=True
+FEATURE_SUBSCRIPTION_DISCOUNTS=True
+FEATURE_TEACHER_EARNINGS=True
+FEATURE_PUSH_NOTIFICATIONS=False
+FEATURE_SMS_NOTIFICATIONS=False
