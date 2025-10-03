@@ -10,6 +10,7 @@ import 'package:readingquest_bilingual_learning/core/extensions_theme.dart';
 import '../../../core/services/service_locator.dart';
 import '../../../core/utils/theme_app.dart';
 import '../../../models/word_model.dart';
+import '../../../providers/words_provider.dart';
 import '../../../services/tts_service.dart';
 
 class SpellingGameScreen extends ConsumerStatefulWidget {
@@ -289,9 +290,9 @@ class _SpellingGameScreenState extends ConsumerState<SpellingGameScreen>
 
                       SizedBox(height: 8.h),
 
-                      if (currentWord.meaning != null)
+                      if (currentWord.meaningAr != null)
                         Text(
-                          currentWord.meaning!,
+                          currentWord.meaningAr!,
                           style: TextStyle(
                             fontSize: 16.sp,
                             color: context.colorscheme.secondary,

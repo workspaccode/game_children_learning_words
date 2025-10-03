@@ -19,6 +19,7 @@ import '../../features/settings/settings_screen.dart';
 import '../../features/splash/splash_screen.dart';
 import '../../features/teacher_dashboard/create_activity_screen.dart';
 import '../../features/teacher_dashboard/teacher_dashboard_screen.dart';
+import '../../features/teacher_dashboard/teacher_dashboard_screen_new.dart';
 import 'app_routes.dart';
 
 class AppRouter {

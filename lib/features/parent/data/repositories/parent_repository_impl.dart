@@ -92,7 +92,7 @@ class ParentRepositoryImpl implements ParentRepository {
   }
 
   @override
-  Future<Either<Failure, List<ChildUser>>> getChildren(String parentId) async {
+  Future<Either<Failure, List<ChildUserModel>>> getChildren(String parentId) async {
     try {
       final snapshot = await _usersCollection
           .where('role', isEqualTo: 'child')
@@ -128,7 +128,7 @@ class ParentRepositoryImpl implements ParentRepository {
   }
 
   @override
-  Stream<List<ChildUser>> watchChildren(String parentId) {
+  Stream<List<ChildUserModel>> watchChildren(String parentId) {
     return _usersCollection
         .where('role', isEqualTo: 'child')
         .where('parentId', isEqualTo: parentId)

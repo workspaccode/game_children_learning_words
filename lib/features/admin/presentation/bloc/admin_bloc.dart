@@ -72,7 +72,8 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
               id: 'parent',
               name: 'Parent User',
               email: 'parent@example.com',
-              children: <String>[],
+              childrenIds: <String>[],
+              phone: '123456789',
               isActive: true,
               createdAt: DateTime.now(),
             ),
@@ -96,6 +97,7 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
       emit(AdminError(e.toString()));
     }
   }
+
   Future<void> _loadUsers(
     LoadUsersEvent event,
     Emitter<AdminState> emit,
@@ -126,9 +128,10 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
               id: 'parent',
               name: 'Parent User',
               email: 'parent@example.com',
-              children: <String>[],
+              childrenIds: <String>[],
               isActive: true,
               createdAt: DateTime.now(),
+              phone: '123456789',
             ),
             teacher: TeacherUserModel(
               id: 'teacher',
@@ -261,7 +264,7 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
           lastUpdated: DateTime.now(),
         ),
       ),
-      onError: (error) => emit(AdminError(error.toString())),
+      onError: (Object error) => emit(AdminError(error.toString())),
     );
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:readingquest_bilingual_learning/providers/words_provider.dart';
 import '../../models/payment_model.dart';
 import '../../models/subscription_model.dart';
@@ -35,10 +36,15 @@ class _PaymentMethodsScreenState extends ConsumerState<PaymentMethodsScreen> {
 
   // Mock payment gateways
   final List<PaymentGateway> _availableGateways = [
+    // const PaymentGateway(name: 'stc_pay', displayName: 'STC Pay'),
+    // const PaymentGateway(name: 'mada', displayName: 'مدى'),
+    // const PaymentGateway(name: 'visa', displayName: 'Visa'),
+    // const PaymentGateway(name: 'mastercard', displayName: 'Mastercard'),
+    // const PaymentGateway(name: 'apple_pay', displayName: 'Apple Pay'),
+    PaymentGateway.vodafoneCash,
     PaymentGateway.mada,
     PaymentGateway.creditCard,
     PaymentGateway.applePay,
-    PaymentGateway.vodafoneCash,
     PaymentGateway.fawry,
   ];
 
@@ -206,7 +212,7 @@ class _PaymentMethodsScreenState extends ConsumerState<PaymentMethodsScreen> {
   }
 
   Widget _buildPaymentMethodCard(PaymentGateway gateway) {
-    final isSelected = _selectedGateway == gateway;
+    final isSelected = _selectedGateway?.name == gateway.name;
     
     return Container(
       margin: EdgeInsets.only(bottom: 12.h),
@@ -243,12 +249,12 @@ class _PaymentMethodsScreenState extends ConsumerState<PaymentMethodsScreen> {
                 width: 48.w,
                 height: 48.w,
                 decoration: BoxDecoration(
-                  color: _getGatewayColor(gateway).withValues(alpha: 0.1),
+                  color: _getGatewayColor(gateway.name).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: Icon(
-                  _getGatewayIcon(gateway),
-                  color: _getGatewayColor(gateway),
+                  _getGatewayIcon(gateway.name),
+                  color: _getGatewayColor(gateway.name),
                   size: 24.w,
                 ),
               ),
@@ -266,7 +272,7 @@ class _PaymentMethodsScreenState extends ConsumerState<PaymentMethodsScreen> {
                     ),
                     SizedBox(height: 4.h),
                     Text(
-                      _getGatewayDescription(gateway),
+                      _getGatewayDescription(gateway.name),
                       style: TextStyle(
                         fontSize: 12.sp,
                         color: Colors.grey[600],
@@ -409,52 +415,52 @@ class _PaymentMethodsScreenState extends ConsumerState<PaymentMethodsScreen> {
     );
   }
 
-  Color _getGatewayColor(PaymentGateway gateway) {
-    switch (gateway) {
-      case PaymentGateway.vodafoneCash:
-        return Colors.red;
-      case PaymentGateway.mada:
+  Color _getGatewayColor(String gatewayName) {
+    switch (gatewayName) {
+      case 'stc_pay':
+        return Colors.purple;
+      case 'mada':
         return Colors.green;
-      case PaymentGateway.creditCard:
+      case 'visa':
         return Colors.blue;
-      case PaymentGateway.applePay:
+      case 'mastercard':
+        return Colors.red;
+      case 'apple_pay':
         return Colors.black;
-      case PaymentGateway.fawry:
-        return Colors.orange;
       default:
         return Colors.grey;
     }
   }
 
-  IconData _getGatewayIcon(PaymentGateway gateway) {
-    switch (gateway) {
-      case PaymentGateway.vodafoneCash:
+  IconData _getGatewayIcon(String gatewayName) {
+    switch (gatewayName) {
+      case 'stc_pay':
         return Icons.phone_android;
-      case PaymentGateway.mada:
+      case 'mada':
         return Icons.credit_card;
-      case PaymentGateway.creditCard:
+      case 'visa':
         return Icons.credit_card;
-      case PaymentGateway.applePay:
+      case 'mastercard':
+        return Icons.credit_card;
+      case 'apple_pay':
         return Icons.apple;
-      case PaymentGateway.fawry:
-        return Icons.store;
       default:
         return Icons.payment;
     }
   }
 
-  String _getGatewayDescription(PaymentGateway gateway) {
-    switch (gateway) {
-      case PaymentGateway.vodafoneCash:
-        return 'دفع سريع وآمن عبر فودافون كاش';
-      case PaymentGateway.mada:
+  String _getGatewayDescription(String gatewayName) {
+    switch (gatewayName) {
+      case 'stc_pay':
+        return 'دفع سريع وآمن عبر STC Pay';
+      case 'mada':
         return 'بطاقة مدى المحلية';
-      case PaymentGateway.creditCard:
-        return 'بطاقة ائتمانية';
-      case PaymentGateway.applePay:
+      case 'visa':
+        return 'بطاقة فيزا الائتمانية';
+      case 'mastercard':
+        return 'بطاقة ماستركارد الائتمانية';
+      case 'apple_pay':
         return 'دفع آمن عبر Apple Pay';
-      case PaymentGateway.fawry:
-        return 'دفع عبر فوري';
       default:
         return 'طريقة دفع آمنة';
     }
@@ -464,12 +470,11 @@ class _PaymentMethodsScreenState extends ConsumerState<PaymentMethodsScreen> {
     if (_selectedGateway == null) return;
 
     // Navigate to payment screen based on gateway type
-    if (_selectedGateway == PaymentGateway.vodafoneCash || 
-        _selectedGateway == PaymentGateway.mada) {
+    if (_selectedGateway!.name == 'stc_pay' || _selectedGateway!.name == 'mada') {
       // Navigate to mobile wallet payment screen
       Navigator.push(
         context,
-        MaterialPageRoute<void>(
+        MaterialPageRoute(
           builder: (context) => MobileWalletPaymentScreen(
             gateway: _selectedGateway!,
             amount: widget.amount,

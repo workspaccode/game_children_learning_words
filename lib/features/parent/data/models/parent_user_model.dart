@@ -9,8 +9,9 @@ class ParentUserModel extends ParentUser {
     required super.isActive,
     required super.createdAt,
     super.lastLoginAt,
-    required super.children,
-    this.paymentInfo,
+    this.paymentInfo, 
+    required super.childrenIds,
+     required super.phone,
   });
 
   factory ParentUserModel.fromJson(Map<String, dynamic> json) {
@@ -23,8 +24,9 @@ class ParentUserModel extends ParentUser {
       lastLoginAt: json['lastLoginAt'] != null
           ? DateTime.parse(json['lastLoginAt'] as String)
           : null,
-      children: List<String>.from(json['children'] as List),
+      childrenIds: List<String>.from(json['childrenIds'] as List),
       paymentInfo: json['paymentInfo'] as Map<String, dynamic>?,
+      phone: json['phone'] as String,
     );
   }
 
@@ -39,8 +41,9 @@ class ParentUserModel extends ParentUser {
       'isActive': isActive,
       'createdAt': createdAt.toIso8601String(),
       'lastLoginAt': lastLoginAt?.toIso8601String(),
-      'children': children,
+      'childrenIds': childrenIds,
       'paymentInfo': paymentInfo,
+      'phone': phone,
     };
   }
 }

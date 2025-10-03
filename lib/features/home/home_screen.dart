@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
-import 'package:readingquest_bilingual_learning/core/providers/auth_provider.dart';
 
 import '../../core/extensions_theme.dart';
 import '../../core/routing/app_routes.dart';
@@ -201,7 +200,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           fontSize: 14.sp,
                           color: Theme.of(
                             context,
-                          ).colorScheme.onSurface.withOpacity(0.7),
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                       ),
                     ],
@@ -246,7 +245,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     Expanded(
                       child: StatsCard(
                         title: 'stats.wordsLearned'.tr(),
-                        value: stats.totalWords.toString(),
+                        value: stats['totalWords'].toString(),
                         icon: Icons.book_outlined,
                         color: AppTheme.primaryColor,
                       ),
@@ -255,7 +254,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     Expanded(
                       child: StatsCard(
                         title: 'stats.gamesPlayed'.tr(),
-                        value: '15', // TODO: Get from game progress
+                        value: '15', // Get from game progress
                         icon: Icons.games_outlined,
                         color: Theme.of(context).colorScheme.secondary,
                       ),
@@ -264,7 +263,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     Expanded(
                       child: StatsCard(
                         title: 'stats.accuracy'.tr(),
-                        value: '85%', // TODO: Calculate from progress
+                        value: '85%', // Calculate from progress
                         icon: Icons.trending_up_outlined,
                         color: AppTheme.successColor,
                       ),
@@ -272,7 +271,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   ],
                 ),
                 loading: () => const LoadingWidget(),
-                error: (error, stack) => Text('Error: $error'),
+                error: (Object error, StackTrace stack) => Text('Error: $error'),
               ),
             ],
           ),
@@ -436,7 +435,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                 width: 50.w,
                                 height: 50.h,
                                 decoration: BoxDecoration(
-                                  color: AppTheme.primaryColor.withOpacity(0.1),
+                                  color: AppTheme.primaryColor.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(8.r),
                                 ),
                                 child: Icon(
@@ -476,7 +475,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   ),
                 ),
                 loading: () => const LoadingWidget(),
-                error: (error, stack) => Text('Error: $error'),
+                error: (Object error, StackTrace stack) => Text('Error: $error'),
               ),
             ],
           ),

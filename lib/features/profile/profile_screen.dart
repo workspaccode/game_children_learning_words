@@ -1,16 +1,8 @@
-import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:readingquest_bilingual_learning/core/extensions_theme.dart';
-import 'package:readingquest_bilingual_learning/core/providers/auth_provider.dart';
-import 'package:readingquest_bilingual_learning/features/profile/widgets/level_progress_card.dart';
-import 'package:readingquest_bilingual_learning/features/profile/widgets/profile_achievement_card.dart';
-import 'package:readingquest_bilingual_learning/services/auth_service.dart';
-
-import '../../core/utils/theme_app.dart';
-import '../../shared/widgets/custom_button.dart';
+import 'package:readingquest_bilingual_learning/providers/words_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -20,203 +12,428 @@ class ProfileScreen extends ConsumerWidget {
     final authState = ref.watch(authStateProvider);
     final user = authState.user;
 
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [AppTheme.primaryColor, Colors.transparent],
-          stops: [0.0, 0.2],
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: AppBar(
+        title: const Text('الملف الشخصي'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: () => context.pop(),
         ),
-      ),
-      child: Scaffold(
-        appBar: AppBar(
-          leading: GestureDetector(
-            onTap: () => context.pop(),
-            child: const Icon(Icons.arrow_back_ios),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('الإعدادات قيد التطوير')),
+              );
+            },
           ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.settings),
-              onPressed: () {
-                // TODO: Navigate to settings
-              },
-            ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(20.w),
+        child: Column(
+          children: [
+            _buildProfileHeader(context, user),
+            SizedBox(height: 32.h),
+            // Always show stats section for demo
+            ...[
+              _buildStatsSection(context),
+              SizedBox(height: 32.h),
+              _buildAchievementsSection(context),
+              SizedBox(height: 32.h),
+            ],
+            _buildActionButtons(context, ref),
           ],
         ),
-        body: SafeArea(
-          child: Column(
+      ),
+    );
+  }
+
+  Widget _buildProfileHeader(BuildContext context, MockUser? user) {
+    return Container(
+      padding: EdgeInsets.all(24.w),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Theme.of(context).primaryColor.withValues(alpha: 0.8),
+            Theme.of(context).primaryColor,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20.r),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Stack(
             children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.all(16.w),
-                  child: Column(
-                    children: [
-                      // Profile Header
-                      FadeInDown(
-                        child: Stack(
-                          children: [
-                            CircleAvatar(
-                              radius: 60.r,
-                              backgroundColor: AppTheme.primaryColor,
-                              child: user?.profileImageUrl != null
-                                  ? ClipOval(
-                                      child: Image.network(
-                                        user!.profileImageUrl!,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    )
-                                  : Icon(
-                                      Icons.person,
-                                      size: 60.w,
-                                      color: Colors.white,
-                                    ),
-                            ),
-                            if (user?.isProfileComplete() == false)
-                              Positioned(
-                                right: 0,
-                                bottom: 0,
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 8.w,
-                                    vertical: 4.h,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.orange,
-                                    borderRadius: BorderRadius.circular(12.r),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.warning_amber_rounded,
-                                        size: 16.w,
-                                        color: Colors.white,
-                                      ),
-                                      SizedBox(width: 4.w),
-                                      Text(
-                                        'أكمل ملفك',
-                                        style: TextStyle(
-                                          fontSize: 12.sp,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 20.h),
-                      FadeInUp(
-                        child: Text(
-                          user?.name ?? 'المستخدم',
-                          style: TextStyle(
-                            fontSize: 24.sp,
-                            fontWeight: FontWeight.bold,
-                            color: context.colorscheme.primary,
-                          ),
-                        ),
-                      ),
-                      if (user?.userType == UserType.child)
-                        FadeInUp(
-                          delay: const Duration(milliseconds: 200),
-                          child: Text(
-                            'عمر ${user?.age ?? ''} سنوات',
-                            style: TextStyle(
-                              fontSize: 16.sp,
-                              color: context.colorscheme.secondary,
-                            ),
-                          ),
-                        ),
-                      SizedBox(height: 24.h),
-
-                      // Level Progress
-                      if (user?.userType == UserType.child)
-                        FadeInUp(
-                          delay: const Duration(milliseconds: 300),
-                          child: const LevelProgressCard(
-                            level: 2,
-                            wordsLearned: 15,
-                            totalWordsInLevel: 20,
-                          ),
-                        ),
-
-                      SizedBox(height: 24.h),
-
-                      // Achievements Grid
-                      if (user?.userType == UserType.child)
-                        FadeInUp(
-                          delay: const Duration(milliseconds: 400),
-                          child: GridView.count(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 16.h,
-                            crossAxisSpacing: 16.w,
-                            children: const [
-                              ProfileAchievementCard(
-                                title: 'الكلمات المتعلمة',
-                                value: '25',
-                                icon: Icons.auto_stories,
-                                color: Colors.blue,
-                              ),
-                              ProfileAchievementCard(
-                                title: 'أيام متتالية',
-                                value: '7',
-                                icon: Icons.local_fire_department,
-                                color: Colors.orange,
-                              ),
-                              ProfileAchievementCard(
-                                title: 'النقاط',
-                                value: '150',
-                                icon: Icons.star,
-                                color: Colors.amber,
-                              ),
-                              ProfileAchievementCard(
-                                title: 'الألعاب المكتملة',
-                                value: '12',
-                                icon: Icons.games,
-                                color: Colors.green,
-                              ),
-                            ],
-                          ),
-                        ),
-
-                      SizedBox(height: 32.h),
-
-                      // Action Buttons
-                      FadeInUp(
-                        delay: const Duration(milliseconds: 500),
-                        child: CustomButton(
-                          text: 'تعديل الملف الشخصي',
-                          onPressed: () {
-                            // TODO: Navigate to edit profile
+              CircleAvatar(
+                radius: 50.w,
+                backgroundColor: Colors.white.withValues(alpha: 0.2),
+                child: user?.profileImageUrl != null
+                    ? ClipOval(
+                        child: Image.network(
+                          user!.profileImageUrl!,
+                          width: 100.w,
+                          height: 100.w,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(
+                              Icons.person,
+                              size: 50.w,
+                              color: Colors.white,
+                            );
                           },
                         ),
+                      )
+                    : Icon(
+                        Icons.person,
+                        size: 50.w,
+                        color: Colors.white,
                       ),
-                      SizedBox(height: 16.h),
-                      FadeInUp(
-                        delay: const Duration(milliseconds: 600),
-                        child: CustomButton(
-                          text: 'تسجيل الخروج',
-                          onPressed: () {
-                            ref.read(authStateProvider.notifier).signOut();
-                            Navigator.of(
-                              context,
-                            ).pushReplacementNamed('/login');
-                          },
-                          // variant: ButtonVariant.outlined,
-                        ),
-                      ),
-                    ],
+              ),
+              Positioned(
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  padding: EdgeInsets.all(8.w),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.camera_alt,
+                    size: 16.w,
+                    color: Theme.of(context).primaryColor,
                   ),
                 ),
               ),
             ],
           ),
+          SizedBox(height: 16.h),
+          Text(
+            user?.displayName ?? 'المستخدم',
+            style: TextStyle(
+              fontSize: 24.sp,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            user?.email ?? 'user@example.com',
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: Colors.white.withValues(alpha: 0.9),
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(20.r),
+            ),
+            child: Text(
+              'مستخدم نشط',
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: Colors.white,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatsSection(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(20.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'إحصائياتي',
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 16.h),
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatCard(
+                  'المستوى',
+                  '2',
+                  Icons.trending_up,
+                  Colors.blue,
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: _buildStatCard(
+                  'الكلمات',
+                  '25',
+                  Icons.auto_stories,
+                  Colors.green,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 12.h),
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatCard(
+                  'النقاط',
+                  '150',
+                  Icons.star,
+                  Colors.amber,
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: _buildStatCard(
+                  'الأيام',
+                  '7',
+                  Icons.local_fire_department,
+                  Colors.orange,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+    return Container(
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 24.w),
+          SizedBox(height: 8.h),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 20.sp,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+          SizedBox(height: 4.h),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 12.sp,
+              color: Colors.grey[600],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAchievementsSection(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(20.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.emoji_events, color: Colors.amber, size: 24.w),
+              SizedBox(width: 8.w),
+              Text(
+                'الإنجازات',
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16.h),
+          GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 3,
+            mainAxisSpacing: 12.h,
+            crossAxisSpacing: 12.w,
+            children: [
+              _buildAchievementBadge('🏆', 'أول كلمة', true),
+              _buildAchievementBadge('🔥', '7 أيام', true),
+              _buildAchievementBadge('⭐', '100 نقطة', true),
+              _buildAchievementBadge('📚', '20 كلمة', false),
+              _buildAchievementBadge('🎯', 'مستوى 3', false),
+              _buildAchievementBadge('💎', 'خبير', false),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAchievementBadge(String emoji, String title, bool achieved) {
+    return Container(
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: achieved 
+            ? Colors.amber.withValues(alpha: 0.1)
+            : Colors.grey.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(
+          color: achieved 
+              ? Colors.amber.withValues(alpha: 0.3)
+              : Colors.grey.withValues(alpha: 0.3),
         ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            emoji,
+            style: TextStyle(
+              fontSize: 24.sp,
+              color: achieved ? null : Colors.grey,
+            ),
+          ),
+          SizedBox(height: 4.h),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 10.sp,
+              fontWeight: FontWeight.w500,
+              color: achieved ? Colors.amber[700] : Colors.grey[600],
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButtons(BuildContext context, WidgetRef ref) {
+    return Column(
+      children: [
+        SizedBox(
+          width: double.infinity,
+          height: 56.h,
+          child: ElevatedButton.icon(
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('تعديل الملف الشخصي قيد التطوير')),
+              );
+            },
+            icon: const Icon(Icons.edit, color: Colors.white),
+            label: Text(
+              'تعديل الملف الشخصي',
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).primaryColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16.r),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(height: 16.h),
+        SizedBox(
+          width: double.infinity,
+          height: 56.h,
+          child: OutlinedButton.icon(
+            onPressed: () {
+              _showLogoutDialog(context, ref);
+            },
+            icon: Icon(Icons.logout, color: Colors.red[600]),
+            label: Text(
+              'تسجيل الخروج',
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.bold,
+                color: Colors.red[600],
+              ),
+            ),
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(color: Colors.red[600]!),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16.r),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context, WidgetRef ref) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('تسجيل الخروج'),
+        content: const Text('هل أنت متأكد من تسجيل الخروج؟'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('إلغاء'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ref.read(authStateProvider.notifier).signOut();
+              context.go('/login');
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('تسجيل الخروج', style: TextStyle(color: Colors.white)),
+          ),
+        ],
       ),
     );
   }

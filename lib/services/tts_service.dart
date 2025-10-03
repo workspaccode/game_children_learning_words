@@ -147,6 +147,7 @@ class TTSService {
     return false;
   }
 
+
   // Get current settings
   double get speechRate => _speechRate;
   double get speechVolume => _speechVolume;

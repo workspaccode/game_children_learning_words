@@ -550,7 +550,7 @@ class FirebaseDatabaseService {
       if (!userDoc.exists) return [];
 
       final userData = userDoc.data();
-      final dynamic rawFavoriteWords = userData['favorite_words'];
+      final dynamic rawFavoriteWords = userData!['favorite_words'];
       final List<dynamic> favoriteWordsList = rawFavoriteWords is List
           ? rawFavoriteWords
           : [];

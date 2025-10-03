@@ -1,850 +1,896 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
-import 'package:readingquest_bilingual_learning/core/providers/auth_provider.dart';
+// import 'package:flutter/material.dart';
+// import 'package:flutter_riverpod/flutter_riverpod.dart';
+// import 'package:flutter_screenutil/flutter_screenutil.dart';
+// import 'package:go_router/go_router.dart';
+// import 'package:readingquest_bilingual_learning/providers/words_provider.dart';
 
-import '../../models/classroom_model.dart';
-import '../../models/subscription_model.dart';
-import '../../models/user_model.dart';
-import '../../providers/teacher_provider.dart';
+// class TeacherDashboardScreen extends ConsumerStatefulWidget {
+//   const TeacherDashboardScreen({super.key});
 
-class TeacherDashboardScreen extends ConsumerStatefulWidget {
-  const TeacherDashboardScreen({super.key});
+//   @override
+//   ConsumerState<TeacherDashboardScreen> createState() =>
+//       _TeacherDashboardScreenState();
+// }
 
-  @override
-  ConsumerState<TeacherDashboardScreen> createState() =>
-      _TeacherDashboardScreenState();
-}
+// class _TeacherDashboardScreenState extends ConsumerState<TeacherDashboardScreen>
+//     with TickerProviderStateMixin {
+//   late TabController _tabController;
+//   int _selectedIndex = 0;
 
-class _TeacherDashboardScreenState
-    extends ConsumerState<TeacherDashboardScreen> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadDashboardData();
-    });
-  }
+//   @override
+//   void initState() {
+//     super.initState();
+//     _tabController = TabController(length: 4, vsync: this);
+//   }
 
-  void _loadDashboardData() {
-    final user = ref.read(authStateProvider).user;
-    if (user != null) {
-      ref.read(teacherStatsProvider.notifier).loadStats(user.id);
-      ref.read(teacherClassroomsProvider.notifier).loadClassrooms(user.id);
-      ref
-          .read(teacherSubscriptionsProvider.notifier)
-          .loadSubscriptions(user.id);
-    }
-  }
+//   @override
+//   void dispose() {
+//     _tabController.dispose();
+//     super.dispose();
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    final user = ref.watch(authStateProvider).user;
-    final stats = ref.watch(teacherStatsProvider);
-    final classrooms = ref.watch(teacherClassroomsProvider);
-    final subscriptions = ref.watch(teacherSubscriptionsProvider);
+//   @override
+//   Widget build(BuildContext context) {
+//     final authState = ref.watch(authStateProvider);
+//     final user = authState.user;
 
-    if (user == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
+//     return Scaffold(
+//       backgroundColor: Theme.of(context).colorScheme.surface,
+//       appBar: AppBar(
+//         title: const Text('لوحة تحكم المعلم'),
+//         backgroundColor: Colors.transparent,
+//         elevation: 0,
+//         actions: [
+//           IconButton(
+//             icon: const Icon(Icons.notifications),
+//             onPressed: () {
+//               _showNotifications();
+//             },
+//           ),
+//           IconButton(
+//             icon: const Icon(Icons.settings),
+//             onPressed: () {
+//               context.push('/settings');
+//             },
+//           ),
+//         ],
+//       ),
+//       body: Column(
+//         children: [
+//           _buildWelcomeHeader(user),
+//           _buildQuickStats(),
+//           SizedBox(height: 20.h),
+//           Expanded(
+//             child: _buildMainContent(),
+//           ),
+//         ],
+//       ),
+//       bottomNavigationBar: _buildBottomNavigation(),
+//       floatingActionButton: FloatingActionButton(
+//         onPressed: () {
+//           context.push('/teacher/create-activity');
+//         },
+//         backgroundColor: Theme.of(context).primaryColor,
+//         child: const Icon(Icons.add, color: Colors.white),
+//       ),
+//     );
+//   }
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        title: Text('أهلاً أستاذ ${user.displayName}'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: _showNotifications,
-          ),
-          PopupMenuButton<String>(
-            onSelected: _handleMenuAction,
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'profile',
-                child: ListTile(
-                  leading: Icon(Icons.person_outline),
-                  title: Text('الملف الشخصي'),
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'earnings',
-                child: ListTile(
-                  leading: Icon(Icons.attach_money_outlined),
-                  title: Text('الأرباح'),
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'settings',
-                child: ListTile(
-                  leading: Icon(Icons.settings_outlined),
-                  title: Text('الإعدادات'),
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'logout',
-                child: ListTile(
-                  leading: Icon(Icons.logout_outlined),
-                  title: Text('تسجيل الخروج'),
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async => _loadDashboardData(),
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(16.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Teacher Welcome Card
-              _buildWelcomeCard(user),
-              SizedBox(height: 24.h),
+//   Widget _buildWelcomeHeader(MockUser? user) {
+//     return Container(
+//       margin: EdgeInsets.all(20.w),
+//       padding: EdgeInsets.all(20.w),
+//       decoration: BoxDecoration(
+//         gradient: LinearGradient(
+//           colors: [
+//             Theme.of(context).primaryColor.withValues(alpha: 0.8),
+//             Theme.of(context).primaryColor,
+//           ],
+//           begin: Alignment.topLeft,
+//           end: Alignment.bottomRight,
+//         ),
+//         borderRadius: BorderRadius.circular(16.r),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
+//             blurRadius: 15,
+//             offset: const Offset(0, 5),
+//           ),
+//         ],
+//       ),
+//       child: Row(
+//         children: [
+//           CircleAvatar(
+//             radius: 30.w,
+//             backgroundColor: Colors.white.withValues(alpha: 0.2),
+//             child: user?.profileImageUrl != null
+//                 ? ClipOval(
+//                     child: Image.network(
+//                       user!.profileImageUrl!,
+//                       width: 60.w,
+//                       height: 60.w,
+//                       fit: BoxFit.cover,
+//                       errorBuilder: (context, error, stackTrace) {
+//                         return Icon(
+//                           Icons.person,
+//                           size: 30.w,
+//                           color: Colors.white,
+//                         );
+//                       },
+//                     ),
+//                   )
+//                 : Icon(
+//                     Icons.person,
+//                     size: 30.w,
+//                     color: Colors.white,
+//                   ),
+//           ),
+//           SizedBox(width: 16.w),
+//           Expanded(
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 Text(
+//                   'مرحباً ${user?.displayName ?? 'المعلم'}',
+//                   style: TextStyle(
+//                     fontSize: 18.sp,
+//                     fontWeight: FontWeight.bold,
+//                     color: Colors.white,
+//                   ),
+//                 ),
+//                 SizedBox(height: 4.h),
+//                 Text(
+//                   'لديك 3 فصول دراسية و 25 طالب',
+//                   style: TextStyle(
+//                     fontSize: 14.sp,
+//                     color: Colors.white.withValues(alpha: 0.9),
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//           Icon(
+//             Icons.school,
+//             color: Colors.white,
+//             size: 32.w,
+//           ),
+//         ],
+//       ),
+//     );
+//   }
 
-              // Statistics Cards
-              _buildStatsCards(stats),
-              SizedBox(height: 24.h),
+//   Widget _buildQuickStats() {
+//     return Padding(
+//       padding: EdgeInsets.symmetric(horizontal: 20.w),
+//       child: Row(
+//         children: [
+//           Expanded(
+//             child: _buildStatCard(
+//               'الطلاب',
+//               '25',
+//               Icons.people,
+//               Colors.blue,
+//             ),
+//           ),
+//           SizedBox(width: 12.w),
+//           Expanded(
+//             child: _buildStatCard(
+//               'الأنشطة',
+//               '12',
+//               Icons.assignment,
+//               Colors.green,
+//             ),
+//           ),
+//           SizedBox(width: 12.w),
+//           Expanded(
+//             child: _buildStatCard(
+//               'التقييمات',
+//               '8',
+//               Icons.quiz,
+//               Colors.orange,
+//             ),
+//           ),
+//           SizedBox(width: 12.w),
+//           Expanded(
+//             child: _buildStatCard(
+//               'التقارير',
+//               '5',
+//               Icons.analytics,
+//               Colors.purple,
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
 
-              // Quick Actions
-              _buildSectionHeader('إجراءات سريعة', Icons.flash_on),
-              SizedBox(height: 12.h),
-              _buildQuickActions(),
-              SizedBox(height: 24.h),
+//   Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+//     return Container(
+//       padding: EdgeInsets.all(16.w),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(12.r),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withValues(alpha: 0.08),
+//             blurRadius: 10,
+//             offset: const Offset(0, 2),
+//           ),
+//         ],
+//       ),
+//       child: Column(
+//         children: [
+//           Container(
+//             padding: EdgeInsets.all(8.w),
+//             decoration: BoxDecoration(
+//               color: color.withValues(alpha: 0.1),
+//               shape: BoxShape.circle,
+//             ),
+//             child: Icon(icon, color: color, size: 20.w),
+//           ),
+//           SizedBox(height: 8.h),
+//           Text(
+//             value,
+//             style: TextStyle(
+//               fontSize: 18.sp,
+//               fontWeight: FontWeight.bold,
+//               color: color,
+//             ),
+//           ),
+//           SizedBox(height: 4.h),
+//           Text(
+//             title,
+//             style: TextStyle(
+//               fontSize: 12.sp,
+//               color: Colors.grey[600],
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
 
-              // Classrooms Section
-              _buildSectionHeader('فصولي الدراسية', Icons.school),
-              SizedBox(height: 12.h),
-              _buildClassroomsSection(classrooms),
-              SizedBox(height: 24.h),
+//   Widget _buildMainContent() {
+//     switch (_selectedIndex) {
+//       case 0:
+//         return _buildOverviewTab();
+//       case 1:
+//         return _buildClassroomsTab();
+//       case 2:
+//         return _buildActivitiesTab();
+//       case 3:
+//         return _buildReportsTab();
+//       default:
+//         return _buildOverviewTab();
+//     }
+//   }
 
-              // Active Subscriptions
-              _buildSectionHeader('الاشتراكات النشطة', Icons.payment),
-              SizedBox(height: 12.h),
-              _buildSubscriptionsSection(subscriptions),
-              SizedBox(height: 24.h),
+//   Widget _buildOverviewTab() {
+//     return SingleChildScrollView(
+//       padding: EdgeInsets.all(20.w),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Text(
+//             'الأنشطة الحديثة',
+//             style: TextStyle(
+//               fontSize: 18.sp,
+//               fontWeight: FontWeight.bold,
+//             ),
+//           ),
+//           SizedBox(height: 16.h),
+//           _buildRecentActivitiesList(),
+//           SizedBox(height: 24.h),
+//           Text(
+//             'الطلاب النشطون',
+//             style: TextStyle(
+//               fontSize: 18.sp,
+//               fontWeight: FontWeight.bold,
+//             ),
+//           ),
+//           SizedBox(height: 16.h),
+//           _buildActiveStudentsList(),
+//         ],
+//       ),
+//     );
+//   }
 
-              // Recent Student Activity
-              _buildSectionHeader('نشاط الطلاب الأخير', Icons.timeline),
-              SizedBox(height: 12.h),
-              _buildRecentActivity(),
-            ],
-          ),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _showCreateClassroomDialog,
-        icon: const Icon(Icons.add),
-        label: const Text('فصل جديد'),
-        backgroundColor: Theme.of(context).primaryColor,
-      ),
-    );
-  }
+//   Widget _buildClassroomsTab() {
+//     return SingleChildScrollView(
+//       padding: EdgeInsets.all(20.w),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Row(
+//             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//             children: [
+//               Text(
+//                 'الفصول الدراسية',
+//                 style: TextStyle(
+//                   fontSize: 18.sp,
+//                   fontWeight: FontWeight.bold,
+//                 ),
+//               ),
+//               ElevatedButton.icon(
+//                 onPressed: () {
+//                   _showCreateClassroomDialog();
+//                 },
+//                 icon: const Icon(Icons.add, color: Colors.white),
+//                 label: const Text('إضافة فصل', style: TextStyle(color: Colors.white)),
+//                 style: ElevatedButton.styleFrom(
+//                   backgroundColor: Theme.of(context).primaryColor,
+//                 ),
+//               ),
+//             ],
+//           ),
+//           SizedBox(height: 16.h),
+//           _buildClassroomsList(),
+//         ],
+//       ),
+//     );
+//   }
 
-  Widget _buildWelcomeCard(UserModel user) {
-    return Container(
-      padding: EdgeInsets.all(20.w),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Theme.of(context).primaryColor,
-            Theme.of(context).primaryColor.withOpacity(0.8),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).primaryColor.withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 30.w,
-            backgroundColor: Colors.white.withOpacity(0.2),
-            backgroundImage: user.profileImageUrl != null
-                ? NetworkImage(user.profileImageUrl!)
-                : null,
-            child: user.profileImageUrl == null
-                ? Text(
-                    user.initials,
-                    style: TextStyle(
-                      fontSize: 24.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  )
-                : null,
-          ),
-          SizedBox(width: 16.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'مرحباً ${user.displayName}!',
-                  style: TextStyle(
-                    fontSize: 20.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                SizedBox(height: 4.h),
-                Text(
-                  'لنساعد الأطفال على التعلم اليوم',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: Colors.white.withOpacity(0.9),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Icon(Icons.school, color: Colors.white.withOpacity(0.7), size: 40.w),
-        ],
-      ),
-    );
-  }
+//   Widget _buildActivitiesTab() {
+//     return SingleChildScrollView(
+//       padding: EdgeInsets.all(20.w),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Row(
+//             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//             children: [
+//               Text(
+//                 'الأنشطة',
+//                 style: TextStyle(
+//                   fontSize: 18.sp,
+//                   fontWeight: FontWeight.bold,
+//                 ),
+//               ),
+//               ElevatedButton.icon(
+//                 onPressed: () {
+//                   context.push('/teacher/create-activity');
+//                 },
+//                 icon: const Icon(Icons.add, color: Colors.white),
+//                 label: const Text('نشاط جديد', style: TextStyle(color: Colors.white)),
+//                 style: ElevatedButton.styleFrom(
+//                   backgroundColor: Theme.of(context).primaryColor,
+//                 ),
+//               ),
+//             ],
+//           ),
+//           SizedBox(height: 16.h),
+//           _buildActivitiesList(),
+//         ],
+//       ),
+//     );
+//   }
 
-  Widget _buildStatsCards(AsyncValue<Map<String, dynamic>> stats) {
-    return stats.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => Text('خطأ: $error'),
-      data: (data) => GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 1.3,
-          crossAxisSpacing: 12.w,
-          mainAxisSpacing: 12.h,
-        ),
-        itemCount: 4,
-        itemBuilder: (context, index) {
-          final stats = [
-            {
-              'title': 'الفصول',
-              'value': '${data['total_classrooms'] ?? 0}',
-              'icon': Icons.school,
-              'color': Colors.blue,
-            },
-            {
-              'title': 'الطلاب',
-              'value': '${data['total_students'] ?? 0}',
-              'icon': Icons.people,
-              'color': Colors.green,
-            },
-            {
-              'title': 'الاشتراكات',
-              'value': '${data['active_subscriptions'] ?? 0}',
-              'icon': Icons.payment,
-              'color': Colors.orange,
-            },
-            {
-              'title': 'الإيرادات',
-              'value': '${(data['total_revenue'] ?? 0.0).toInt()} ريال',
-              'icon': Icons.attach_money,
-              'color': Colors.purple,
-            },
-          ];
+//   Widget _buildReportsTab() {
+//     return SingleChildScrollView(
+//       padding: EdgeInsets.all(20.w),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Text(
+//             'التقارير والإحصائيات',
+//             style: TextStyle(
+//               fontSize: 18.sp,
+//               fontWeight: FontWeight.bold,
+//             ),
+//           ),
+//           SizedBox(height: 16.h),
+//           _buildReportsList(),
+//         ],
+//       ),
+//     );
+//   }
 
-          final stat = stats[index];
-          return _buildStatCard(
-            stat['title']! as String,
-            stat['value']! as String,
-            stat['icon']! as IconData,
-            stat['color']! as Color,
-          );
-        },
-      ),
-    );
-  }
+//   Widget _buildRecentActivitiesList() {
+//     final activities = [
+//       {'title': 'قراءة الحروف', 'class': 'الصف الأول', 'students': 15, 'date': 'اليوم'},
+//       {'title': 'كتابة الكلمات', 'class': 'الصف الثاني', 'students': 12, 'date': 'أمس'},
+//       {'title': 'تعلم الأرقام', 'class': 'الصف الأول', 'students': 18, 'date': 'منذ يومين'},
+//     ];
 
-  Widget _buildStatCard(
-    String title,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: EdgeInsets.all(12.w),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: color, size: 24.w),
-          ),
-          SizedBox(height: 12.h),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-          SizedBox(height: 4.h),
-          Text(
-            title,
-            style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
+//     return Column(
+//       children: activities.map((activity) => _buildActivityCard(activity)).toList(),
+//     );
+//   }
 
-  Widget _buildSectionHeader(String title, IconData icon) {
-    return Row(
-      children: [
-        Icon(icon, size: 20.w, color: Theme.of(context).primaryColor),
-        SizedBox(width: 8.w),
-        Text(
-          title,
-          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
-        ),
-        const Spacer(),
-        TextButton(
-          onPressed: () => _navigateToSection(title),
-          child: const Text('عرض الكل'),
-        ),
-      ],
-    );
-  }
+//   Widget _buildActiveStudentsList() {
+//     final students = [
+//       {'name': 'أحمد محمد', 'class': 'الصف الأول', 'progress': 85, 'avatar': '👦'},
+//       {'name': 'فاطمة علي', 'class': 'الصف الثاني', 'progress': 92, 'avatar': '👧'},
+//       {'name': 'محمد أحمد', 'class': 'الصف الأول', 'progress': 78, 'avatar': '👦'},
+//     ];
 
-  Widget _buildQuickActions() {
-    final actions = [
-      {
-        'title': 'فصل جديد',
-        'icon': Icons.add_box,
-        'color': Colors.blue,
-        'action': _showCreateClassroomDialog,
-      },
-      {
-        'title': 'إنشاء نشاط',
-        'icon': Icons.assignment_add,
-        'color': Colors.green,
-        'action': _showCreateActivityDialog,
-      },
-      {
-        'title': 'تقارير الطلاب',
-        'icon': Icons.analytics,
-        'color': Colors.purple,
-        'action': _viewStudentReports,
-      },
-      {
-        'title': 'إعدادات الفصل',
-        'icon': Icons.settings,
-        'color': Colors.orange,
-        'action': _openClassroomSettings,
-      },
-    ];
+//     return Column(
+//       children: students.map((student) => _buildStudentCard(student)).toList(),
+//     );
+//   }
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 1.5,
-        crossAxisSpacing: 12.w,
-        mainAxisSpacing: 12.h,
-      ),
-      itemCount: actions.length,
-      itemBuilder: (context, index) {
-        final action = actions[index];
-        return InkWell(
-          onTap: action['action']! as VoidCallback,
-          borderRadius: BorderRadius.circular(12.r),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12.r),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  action['icon']! as IconData,
-                  size: 32.w,
-                  color: action['color']! as Color,
-                ),
-                SizedBox(height: 8.h),
-                Text(
-                  action['title']! as String,
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+//   Widget _buildClassroomsList() {
+//     final classrooms = [
+//       {'name': 'الصف الأول أ', 'students': 15, 'activities': 8, 'color': Colors.blue},
+//       {'name': 'الصف الثاني ب', 'students': 12, 'activities': 6, 'color': Colors.green},
+//       {'name': 'الصف الثالث ج', 'students': 18, 'activities': 10, 'color': Colors.orange},
+//     ];
 
-  Widget _buildClassroomsSection(AsyncValue<List<ClassroomModel>> classrooms) {
-    return classrooms.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => Text('خطأ: $error'),
-      data: (classroomsList) => classroomsList.isEmpty
-          ? _buildEmptyState('لم تنشئ أي فصل بعد', 'ابدأ بإنشاء فصل دراسي جديد')
-          : ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: classroomsList.length,
-              itemBuilder: (context, index) =>
-                  _buildClassroomCard(classroomsList[index]),
-            ),
-    );
-  }
+//     return Column(
+//       children: classrooms.map((classroom) => _buildClassroomCard(classroom)).toList(),
+//     );
+//   }
 
-  Widget _buildClassroomCard(ClassroomModel classroom) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 12.h),
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: InkWell(
-        onTap: () => _viewClassroomDetails(classroom),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(12.w),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.school,
-                    color: Theme.of(context).primaryColor,
-                    size: 20.w,
-                  ),
-                ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        classroom.name,
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        '${classroom.gradeLevelName} - ${classroom.subject}',
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (classroom.hasSchedule)
-                  Chip(
-                    label: Text('مجدول', style: TextStyle(fontSize: 10.sp)),
-                    backgroundColor: Colors.green.withOpacity(0.1),
-                    labelStyle: const TextStyle(color: Colors.green),
-                  ),
-              ],
-            ),
-            SizedBox(height: 12.h),
-            Row(
-              children: [
-                _buildInfoChip(
-                  '${classroom.studentCount} طالب',
-                  Icons.people,
-                  Colors.blue,
-                ),
-                SizedBox(width: 8.w),
-                if (classroom.isFull)
-                  _buildInfoChip('مكتمل', Icons.warning, Colors.red),
-                const Spacer(),
-                Text(
-                  classroom.description,
-                  style: TextStyle(fontSize: 10.sp, color: Colors.grey[500]),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+//   Widget _buildActivitiesList() {
+//     final activities = [
+//       {'title': 'قراءة الحروف', 'type': 'قراءة', 'difficulty': 'سهل', 'duration': 15},
+//       {'title': 'كتابة الكلمات', 'type': 'كتابة', 'difficulty': 'متوسط', 'duration': 20},
+//       {'title': 'تعلم الأرقام', 'type': 'مفردات', 'difficulty': 'سهل', 'duration': 10},
+//       {'title': 'قواعد بسيطة', 'type': 'قواعد', 'difficulty': 'صعب', 'duration': 25},
+//     ];
 
-  Widget _buildInfoChip(String label, IconData icon, Color color) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12.r),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12.w, color: color),
-          SizedBox(width: 4.w),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 10.sp,
-              color: color,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+//     return Column(
+//       children: activities.map((activity) => _buildActivityListCard(activity)).toList(),
+//     );
+//   }
 
-  Widget _buildSubscriptionsSection(
-    AsyncValue<List<SubscriptionModel>> subscriptions,
-  ) {
-    return subscriptions.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => Text('خطأ: $error'),
-      data: (subsList) => subsList.isEmpty
-          ? _buildEmptyState(
-              'لا توجد اشتراكات نشطة',
-              'انتظر انضمام أولياء الأمور',
-            )
-          : Column(
-              children: subsList.take(3).map(_buildSubscriptionCard).toList(),
-            ),
-    );
-  }
+//   Widget _buildReportsList() {
+//     final reports = [
+//       {'title': 'تقرير التقدم الشهري', 'type': 'شهري', 'date': 'ديسمبر 2024'},
+//       {'title': 'تحليل الأداء', 'type': 'تحليلي', 'date': 'هذا الأسبوع'},
+//       {'title': 'إحصائيات الحضور', 'type': 'حضور', 'date': 'اليوم'},
+//     ];
 
-  Widget _buildSubscriptionCard(SubscriptionModel subscription) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 12.h),
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: EdgeInsets.all(12.w),
-            decoration: BoxDecoration(
-              color: subscription.isActive
-                  ? Colors.green.withOpacity(0.1)
-                  : Colors.grey.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.family_restroom,
-              color: subscription.isActive ? Colors.green : Colors.grey,
-              size: 20.w,
-            ),
-          ),
-          SizedBox(width: 12.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'ولي أمر: ${subscription.parentId}',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                SizedBox(height: 4.h),
-                Text(
-                  '${subscription.childrenIds.length} أطفال - ${subscription.amount} ريال',
-                  style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
-                ),
-              ],
-            ),
-          ),
-          if (subscription.isActive)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  subscription.subscriptionType == SubscriptionType.monthly
-                      ? 'شهري'
-                      : 'نصف سنوي',
-                  style: TextStyle(
-                    fontSize: 10.sp,
-                    color: Colors.green,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  '${subscription.remainingDays} يوم متبقي',
-                  style: TextStyle(fontSize: 10.sp, color: Colors.orange),
-                ),
-              ],
-            ),
-        ],
-      ),
-    );
-  }
+//     return Column(
+//       children: reports.map((report) => _buildReportCard(report)).toList(),
+//     );
+//   }
 
-  Widget _buildRecentActivity() {
-    // Mock data for now
-    final activities = [
-      {
-        'student': 'أحمد محمد',
-        'activity': 'أكمل درس الحروف',
-        'classroom': 'الصف الأول أ',
-        'time': 'منذ 15 دقيقة',
-      },
-      {
-        'student': 'فاطمة أحمد',
-        'activity': 'حصل على 5 نجوم',
-        'classroom': 'الصف الثاني ب',
-        'time': 'منذ 30 دقيقة',
-      },
-      {
-        'student': 'محمد علي',
-        'activity': 'بدأ نشاط جديد',
-        'classroom': 'الصف الأول أ',
-        'time': 'منذ ساعة',
-      },
-    ];
+//   Widget _buildActivityCard(Map<String, dynamic> activity) {
+//     return Container(
+//       margin: EdgeInsets.only(bottom: 12.h),
+//       padding: EdgeInsets.all(16.w),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(12.r),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withValues(alpha: 0.05),
+//             blurRadius: 10,
+//             offset: const Offset(0, 2),
+//           ),
+//         ],
+//       ),
+//       child: Row(
+//         children: [
+//           Container(
+//             padding: EdgeInsets.all(8.w),
+//             decoration: BoxDecoration(
+//               color: Colors.blue.withValues(alpha: 0.1),
+//               borderRadius: BorderRadius.circular(8.r),
+//             ),
+//             child: Icon(Icons.assignment, color: Colors.blue, size: 20.w),
+//           ),
+//           SizedBox(width: 12.w),
+//           Expanded(
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 Text(
+//                   activity['title'],
+//                   style: TextStyle(
+//                     fontSize: 16.sp,
+//                     fontWeight: FontWeight.bold,
+//                   ),
+//                 ),
+//                 Text(
+//                   '${activity['class']} • ${activity['students']} طالب',
+//                   style: TextStyle(
+//                     fontSize: 12.sp,
+//                     color: Colors.grey[600],
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//           Text(
+//             activity['date'],
+//             style: TextStyle(
+//               fontSize: 12.sp,
+//               color: Colors.grey[500],
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
 
-    return Column(children: activities.map(_buildActivityItem).toList());
-  }
+//   Widget _buildStudentCard(Map<String, dynamic> student) {
+//     return Container(
+//       margin: EdgeInsets.only(bottom: 12.h),
+//       padding: EdgeInsets.all(16.w),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(12.r),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withValues(alpha: 0.05),
+//             blurRadius: 10,
+//             offset: const Offset(0, 2),
+//           ),
+//         ],
+//       ),
+//       child: Row(
+//         children: [
+//           Text(
+//             student['avatar'],
+//             style: TextStyle(fontSize: 32.sp),
+//           ),
+//           SizedBox(width: 12.w),
+//           Expanded(
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 Text(
+//                   student['name'],
+//                   style: TextStyle(
+//                     fontSize: 16.sp,
+//                     fontWeight: FontWeight.bold,
+//                   ),
+//                 ),
+//                 Text(
+//                   student['class'],
+//                   style: TextStyle(
+//                     fontSize: 12.sp,
+//                     color: Colors.grey[600],
+//                   ),
+//                 ),
+//                 SizedBox(height: 4.h),
+//                 LinearProgressIndicator(
+//                   value: student['progress'] / 100.0,
+//                   backgroundColor: Colors.grey[300],
+//                   valueColor: AlwaysStoppedAnimation<Color>(
+//                     student['progress'] > 80 ? Colors.green : Colors.orange,
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//           SizedBox(width: 12.w),
+//           Text(
+//             '${student['progress']}%',
+//             style: TextStyle(
+//               fontSize: 14.sp,
+//               fontWeight: FontWeight.bold,
+//               color: student['progress'] > 80 ? Colors.green : Colors.orange,
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
 
-  Widget _buildActivityItem(Map<String, String> activity) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 12.h),
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 20.w,
-            backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
-            child: Text(
-              activity['student']![0],
-              style: TextStyle(
-                color: Theme.of(context).primaryColor,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          SizedBox(width: 12.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  activity['student']!,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Text(
-                  activity['activity']!,
-                  style: TextStyle(fontSize: 12.sp, color: Colors.grey[700]),
-                ),
-                Text(
-                  '${activity['classroom']} • ${activity['time']}',
-                  style: TextStyle(fontSize: 10.sp, color: Colors.grey[500]),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+//   Widget _buildClassroomCard(Map<String, dynamic> classroom) {
+//     return Container(
+//       margin: EdgeInsets.only(bottom: 12.h),
+//       padding: EdgeInsets.all(16.w),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(12.r),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withValues(alpha: 0.05),
+//             blurRadius: 10,
+//             offset: const Offset(0, 2),
+//           ),
+//         ],
+//       ),
+//       child: Row(
+//         children: [
+//           Container(
+//             padding: EdgeInsets.all(12.w),
+//             decoration: BoxDecoration(
+//               color: (classroom['color'] as Color).withValues(alpha: 0.1),
+//               borderRadius: BorderRadius.circular(8.r),
+//             ),
+//             child: Icon(
+//               Icons.class_,
+//               color: classroom['color'] as Color,
+//               size: 24.w,
+//             ),
+//           ),
+//           SizedBox(width: 16.w),
+//           Expanded(
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 Text(
+//                   classroom['name'],
+//                   style: TextStyle(
+//                     fontSize: 16.sp,
+//                     fontWeight: FontWeight.bold,
+//                   ),
+//                 ),
+//                 SizedBox(height: 4.h),
+//                 Text(
+//                   '${classroom['students']} طالب • ${classroom['activities']} نشاط',
+//                   style: TextStyle(
+//                     fontSize: 12.sp,
+//                     color: Colors.grey[600],
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//           Icon(Icons.arrow_forward_ios, size: 16.w, color: Colors.grey[400]),
+//         ],
+//       ),
+//     );
+//   }
 
-  Widget _buildEmptyState(String title, String subtitle) {
-    return Container(
-      padding: EdgeInsets.all(24.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Icon(Icons.inbox_outlined, size: 48.w, color: Colors.grey[400]),
-          SizedBox(height: 16.h),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[700],
-            ),
-          ),
-          SizedBox(height: 4.h),
-          Text(
-            subtitle,
-            style: TextStyle(fontSize: 12.sp, color: Colors.grey[500]),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
+//   Widget _buildActivityListCard(Map<String, dynamic> activity) {
+//     return Container(
+//       margin: EdgeInsets.only(bottom: 12.h),
+//       padding: EdgeInsets.all(16.w),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(12.r),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withValues(alpha: 0.05),
+//             blurRadius: 10,
+//             offset: const Offset(0, 2),
+//           ),
+//         ],
+//       ),
+//       child: Row(
+//         children: [
+//           Container(
+//             padding: EdgeInsets.all(8.w),
+//             decoration: BoxDecoration(
+//               color: _getActivityTypeColor(activity['type']).withValues(alpha: 0.1),
+//               borderRadius: BorderRadius.circular(8.r),
+//             ),
+//             child: Icon(
+//               _getActivityTypeIcon(activity['type']),
+//               color: _getActivityTypeColor(activity['type']),
+//               size: 20.w,
+//             ),
+//           ),
+//           SizedBox(width: 12.w),
+//           Expanded(
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 Text(
+//                   activity['title'],
+//                   style: TextStyle(
+//                     fontSize: 16.sp,
+//                     fontWeight: FontWeight.bold,
+//                   ),
+//                 ),
+//                 Text(
+//                   '${activity['type']} • ${activity['difficulty']} • ${activity['duration']} د',
+//                   style: TextStyle(
+//                     fontSize: 12.sp,
+//                     color: Colors.grey[600],
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//           PopupMenuButton(
+//             itemBuilder: (context) => [
+//               const PopupMenuItem(value: 'edit', child: Text('تعديل')),
+//               const PopupMenuItem(value: 'duplicate', child: Text('نسخ')),
+//               const PopupMenuItem(value: 'delete', child: Text('حذف')),
+//             ],
+//             onSelected: (value) {
+//               ScaffoldMessenger.of(context).showSnackBar(
+//                 SnackBar(content: Text('تم اختيار: $value')),
+//               );
+//             },
+//           ),
+//         ],
+//       ),
+//     );
+//   }
 
-  void _showNotifications() {
-    // TODO: Implement notifications
-  }
+//   Widget _buildReportCard(Map<String, dynamic> report) {
+//     return Container(
+//       margin: EdgeInsets.only(bottom: 12.h),
+//       padding: EdgeInsets.all(16.w),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(12.r),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withValues(alpha: 0.05),
+//             blurRadius: 10,
+//             offset: const Offset(0, 2),
+//           ),
+//         ],
+//       ),
+//       child: Row(
+//         children: [
+//           Container(
+//             padding: EdgeInsets.all(8.w),
+//             decoration: BoxDecoration(
+//               color: Colors.purple.withValues(alpha: 0.1),
+//               borderRadius: BorderRadius.circular(8.r),
+//             ),
+//             child: Icon(Icons.analytics, color: Colors.purple, size: 20.w),
+//           ),
+//           SizedBox(width: 12.w),
+//           Expanded(
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 Text(
+//                   report['title'],
+//                   style: TextStyle(
+//                     fontSize: 16.sp,
+//                     fontWeight: FontWeight.bold,
+//                   ),
+//                 ),
+//                 Text(
+//                   '${report['type']} • ${report['date']}',
+//                   style: TextStyle(
+//                     fontSize: 12.sp,
+//                     color: Colors.grey[600],
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//           ElevatedButton(
+//             onPressed: () {
+//               ScaffoldMessenger.of(context).showSnackBar(
+//                 SnackBar(content: Text('عرض ${report['title']}')),
+//               );
+//             },
+//             style: ElevatedButton.styleFrom(
+//               backgroundColor: Colors.purple,
+//               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+//             ),
+//             child: const Text('عرض', style: TextStyle(color: Colors.white)),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
 
-  void _handleMenuAction(String action) {
-    switch (action) {
-      case 'profile':
-        context.pushNamed('profile');
-        break;
-      case 'earnings':
-        context.pushNamed('earnings');
-        break;
-      case 'settings':
-        context.pushNamed('settings');
-        break;
-      case 'logout':
-        _showLogoutDialog();
-        break;
-    }
-  }
+//   Widget _buildBottomNavigation() {
+//     return BottomNavigationBar(
+//       type: BottomNavigationBarType.fixed,
+//       currentIndex: _selectedIndex,
+//       onTap: (index) {
+//         setState(() {
+//           _selectedIndex = index;
+//         });
+//       },
+//       items: const [
+//         BottomNavigationBarItem(
+//           icon: Icon(Icons.dashboard),
+//           label: 'نظرة عامة',
+//         ),
+//         BottomNavigationBarItem(
+//           icon: Icon(Icons.class_),
+//           label: 'الفصول',
+//         ),
+//         BottomNavigationBarItem(
+//           icon: Icon(Icons.assignment),
+//           label: 'الأنشطة',
+//         ),
+//         BottomNavigationBarItem(
+//           icon: Icon(Icons.analytics),
+//           label: 'التقارير',
+//         ),
+//       ],
+//     );
+//   }
 
-  void _navigateToSection(String section) {
-    switch (section) {
-      case 'فصولي الدراسية':
-        context.pushNamed('classrooms_management');
-        break;
-      case 'الاشتراكات النشطة':
-        context.pushNamed('teacher_subscriptions');
-        break;
-      // Add more navigation cases
-    }
-  }
+//   Color _getActivityTypeColor(String type) {
+//     switch (type) {
+//       case 'قراءة':
+//         return Colors.blue;
+//       case 'كتابة':
+//         return Colors.green;
+//       case 'مفردات':
+//         return Colors.orange;
+//       case 'قواعد':
+//         return Colors.red;
+//       default:
+//         return Colors.grey;
+//     }
+//   }
 
-  void _showCreateClassroomDialog() {
-    context.pushNamed('create_classroom');
-  }
+//   IconData _getActivityTypeIcon(String type) {
+//     switch (type) {
+//       case 'قراءة':
+//         return Icons.auto_stories;
+//       case 'كتابة':
+//         return Icons.edit;
+//       case 'مفردات':
+//         return Icons.spellcheck;
+//       case 'قواعد':
+//         return Icons.rule;
+//       default:
+//         return Icons.assignment;
+//     }
+//   }
 
-  void _showCreateActivityDialog() {
-    context.pushNamed('create_activity');
-  }
+//   void _showNotifications() {
+//     showDialog<void>(
+//       context: context,
+//       builder: (context) => AlertDialog(
+//         title: const Text('الإشعارات'),
+//         content: Column(
+//           mainAxisSize: MainAxisSize.min,
+//           children: [
+//             ListTile(
+//               leading: const Icon(Icons.assignment, color: Colors.blue),
+//               title: const Text('نشاط جديد مكتمل'),
+//               subtitle: const Text('أحمد محمد أكمل نشاط القراءة'),
+//               trailing: const Text('منذ 5 د'),
+//             ),
+//             ListTile(
+//               leading: const Icon(Icons.person_add, color: Colors.green),
+//               title: const Text('طالب جديد'),
+//               subtitle: const Text('انضم فاطمة علي للصف الثاني'),
+//               trailing: const Text('منذ ساعة'),
+//             ),
+//           ],
+//         ),
+//         actions: [
+//           TextButton(
+//             onPressed: () => Navigator.pop(context),
+//             child: const Text('موافق'),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
 
-  void _viewStudentReports() {
-    context.pushNamed('student_reports');
-  }
-
-  void _openClassroomSettings() {
-    context.pushNamed('classroom_settings');
-  }
-
-  void _viewClassroomDetails(ClassroomModel classroom) {
-    context.pushNamed(
-      'classroom_details',
-      pathParameters: {'classroomId': classroom.id},
-    );
-  }
-
-  void _showLogoutDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('تسجيل الخروج'),
-        content: const Text('هل أنت متأكد من تسجيل الخروج؟'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('إلغاء'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              final authService = ref.read(authStateProvider.notifier);
-              if (await authService.signOut()) {
-                if (context.mounted) {
-                  context.goNamed('login');
-                }
-              }
-            },
-            child: const Text('تسجيل الخروج'),
-          ),
-        ],
-      ),
-    );
-  }
-}
+//   void _showCreateClassroomDialog() {
+//     showDialog<void>(
+//       context: context,
+//       builder: (context) => AlertDialog(
+//         title: const Text('إنشاء فصل جديد'),
+//         content: Column(
+//           mainAxisSize: MainAxisSize.min,
+//           children: [
+//             TextField(
+//               decoration: const InputDecoration(
+//                 labelText: 'اسم الفصل',
+//                 hintText: 'مثال: الصف الأول أ',
+//               ),
+//             ),
+//             SizedBox(height: 16.h),
+//             TextField(
+//               decoration: const InputDecoration(
+//                 labelText: 'وصف الفصل',
+//                 hintText: 'وصف مختصر للفصل',
+//               ),
+//             ),
+//           ],
+//         ),
+//         actions: [
+//           TextButton(
+//             onPressed: () => Navigator.pop(context),
+//             child: const Text('إلغاء'),
+//           ),
+//           ElevatedButton(
+//             onPressed: () {
+//               Navigator.pop(context);
+//               ScaffoldMessenger.of(context).showSnackBar(
+//                 const SnackBar(content: Text('تم إنشاء الفصل بنجاح!')),
+//               );
+//             },
+//             child: const Text('إنشاء'),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }

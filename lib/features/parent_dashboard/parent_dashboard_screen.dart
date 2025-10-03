@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:readingquest_bilingual_learning/core/providers/auth_provider.dart';
+import 'package:readingquest_bilingual_learning/providers/words_provider.dart';
 
 import '../../models/subscription_model.dart';
 import '../../models/user_model.dart';
-import '../../providers/parent_provider.dart';
 
 class ParentDashboardScreen extends ConsumerStatefulWidget {
   const ParentDashboardScreen({super.key});
@@ -28,9 +27,8 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
   void _loadDashboardData() {
     final user = ref.read(authStateProvider).user;
     if (user != null) {
-      ref.read(parentStatsProvider.notifier).loadStats(user.id);
+      // FutureProviders load automatically when watched
       ref.read(parentChildrenProvider.notifier).loadChildren(user.id);
-      ref.read(parentSubscriptionsProvider.notifier).loadSubscriptions(user.id);
     }
   }
 
@@ -183,7 +181,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -194,7 +192,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
           Container(
             padding: EdgeInsets.all(12.w),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: color, size: 24.w),
@@ -264,7 +262,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -281,7 +279,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
                 radius: 25.w,
                 backgroundColor: Theme.of(
                   context,
-                ).primaryColor.withOpacity(0.1),
+                ).primaryColor.withValues(alpha: 0.1),
                 backgroundImage: child.profileImageUrl != null
                     ? NetworkImage(child.profileImageUrl!)
                     : null,
@@ -339,7 +337,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -351,8 +349,8 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
             padding: EdgeInsets.all(12.w),
             decoration: BoxDecoration(
               color: subscription.isActive
-                  ? Colors.green.withOpacity(0.1)
-                  : Colors.grey.withOpacity(0.1),
+                  ? Colors.green.withValues(alpha: 0.1)
+                  : Colors.grey.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -392,7 +390,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
           if (subscription.isActive)
             Chip(
               label: Text('${subscription.remainingDays} يوم'),
-              backgroundColor: Colors.orange.withOpacity(0.1),
+              backgroundColor: Colors.orange.withValues(alpha: 0.1),
               labelStyle: TextStyle(color: Colors.orange, fontSize: 10.sp),
             ),
         ],
@@ -449,7 +447,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
               borderRadius: BorderRadius.circular(12.r),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
@@ -508,7 +506,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -518,7 +516,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
         children: [
           CircleAvatar(
             radius: 20.w,
-            backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+            backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
             child: Text(
               activity['child']![0],
               style: TextStyle(
@@ -559,7 +557,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -653,10 +651,9 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen> {
             onPressed: () async {
               Navigator.pop(context);
               final authService = ref.read(authStateProvider.notifier);
-              if (await authService.signOut()) {
-                if (context.mounted) {
-                  context.goNamed('login');
-                }
+              authService.signOut();
+              if (context.mounted) {
+                context.goNamed('login');
               }
             },
             child: const Text('تسجيل الخروج'),

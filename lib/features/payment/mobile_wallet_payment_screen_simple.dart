@@ -3,11 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:readingquest_bilingual_learning/providers/words_provider.dart';
 import '../../models/payment_model.dart';
 import '../../models/subscription_model.dart';
 
-class MobileWalletPaymentScreen extends ConsumerStatefulWidget {
-  const MobileWalletPaymentScreen({
+class MobileWalletPaymentScreenSimple extends ConsumerStatefulWidget {
+  const MobileWalletPaymentScreenSimple({
     super.key,
     required this.gateway,
     required this.amount,
@@ -27,27 +28,54 @@ class MobileWalletPaymentScreen extends ConsumerStatefulWidget {
   final List<String>? childrenIds;
 
   @override
-  ConsumerState<MobileWalletPaymentScreen> createState() =>
-      _MobileWalletPaymentScreenState();
+  ConsumerState<MobileWalletPaymentScreenSimple> createState() =>
+      _MobileWalletPaymentScreenSimpleState();
 }
 
-class _MobileWalletPaymentScreenState
-    extends ConsumerState<MobileWalletPaymentScreen> {
+class _MobileWalletPaymentScreenSimpleState
+    extends ConsumerState<MobileWalletPaymentScreenSimple>
+    with TickerProviderStateMixin {
   final _phoneController = TextEditingController();
   final _pinController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  
   bool _isProcessing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOutCubic,
+    ));
+
+    _animationController.forward();
+  }
 
   @override
   void dispose() {
     _phoneController.dispose();
     _pinController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(authStateProvider).user;
+    final paymentProcess = ref.watch(paymentProcessProvider);
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
@@ -55,23 +83,28 @@ class _MobileWalletPaymentScreenState
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(20.w),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeaderCard(),
-              SizedBox(height: 20.h),
-              _buildAmountCard(),
-              SizedBox(height: 20.h),
-              _buildPhoneInputCard(),
-              SizedBox(height: 20.h),
-              _buildPinInputCard(),
-              SizedBox(height: 30.h),
-              _buildPaymentButton(),
-            ],
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(20.w),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeaderCard(),
+                SizedBox(height: 20.h),
+                _buildAmountCard(),
+                SizedBox(height: 20.h),
+                _buildPhoneInputCard(),
+                SizedBox(height: 20.h),
+                _buildPinInputCard(),
+                SizedBox(height: 30.h),
+                _buildPaymentButton(),
+                SizedBox(height: 20.h),
+                _buildSecurityInfo(),
+              ],
+            ),
           ),
         ),
       ),
@@ -225,7 +258,7 @@ class _MobileWalletPaymentScreenState
             decoration: InputDecoration(
               hintText: '5xxxxxxxx',
               prefixText: '+966 ',
-              prefixIcon: const Icon(Icons.phone),
+              prefixIcon: Icon(Icons.phone),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
               ),
@@ -280,7 +313,7 @@ class _MobileWalletPaymentScreenState
             ],
             decoration: InputDecoration(
               hintText: '****',
-              prefixIcon: const Icon(Icons.lock),
+              prefixIcon: Icon(Icons.lock),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
               ),
@@ -319,7 +352,7 @@ class _MobileWalletPaymentScreenState
                   SizedBox(
                     width: 20.w,
                     height: 20.w,
-                    child: const CircularProgressIndicator(
+                    child: CircularProgressIndicator(
                       strokeWidth: 2,
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                     ),
@@ -347,6 +380,32 @@ class _MobileWalletPaymentScreenState
     );
   }
 
+  Widget _buildSecurityInfo() {
+    return Container(
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: Colors.blue.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.security, color: Colors.blue, size: 20.w),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Text(
+              'جميع المعاملات محمية بتشفير SSL وتتم معالجتها بأمان تام',
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: Colors.blue[700],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _processPayment() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -358,7 +417,7 @@ class _MobileWalletPaymentScreenState
 
     try {
       // Mock payment processing
-      await Future<void>.delayed(const Duration(seconds: 3));
+      await Future.delayed(const Duration(seconds: 3));
 
       if (mounted) {
         // Show success message
@@ -366,9 +425,9 @@ class _MobileWalletPaymentScreenState
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.check_circle, color: Colors.white),
+                Icon(Icons.check_circle, color: Colors.white),
                 SizedBox(width: 12.w),
-                const Text('تم الدفع بنجاح!'),
+                Text('تم الدفع بنجاح!'),
               ],
             ),
             backgroundColor: Colors.green,
@@ -377,7 +436,7 @@ class _MobileWalletPaymentScreenState
         );
 
         // Navigate back after success
-        await Future<void>.delayed(const Duration(seconds: 1));
+        await Future.delayed(const Duration(seconds: 1));
         if (mounted) {
           context.pop();
         }

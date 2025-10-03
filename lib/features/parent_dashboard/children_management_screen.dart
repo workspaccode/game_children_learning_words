@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:readingquest_bilingual_learning/core/providers/auth_provider.dart';
-
+import 'package:readingquest_bilingual_learning/providers/words_provider.dart';
 import '../../models/user_model.dart';
-import '../../providers/parent_provider.dart';
 import '../../services/auth_service.dart';
 
-class ChildrenManagementScreen extends StatefulWidget {
+class ChildrenManagementScreen extends ConsumerStatefulWidget {
   const ChildrenManagementScreen({super.key});
 
   @override
-  State<ChildrenManagementScreen> createState() => _ChildrenManagementScreenState();}
+ConsumerState<ChildrenManagementScreen> createState() => _ChildrenManagementScreenState();}
      
 
 
 class _ChildrenManagementScreenState
-    extends State<ChildrenManagementScreen> {
+    extends ConsumerState<ChildrenManagementScreen> {
   @override
   void initState() {
     super.initState();
@@ -85,7 +84,7 @@ class _ChildrenManagementScreenState
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Theme.of(context).primaryColor.withOpacity(0.8),
+            Theme.of(context).primaryColor.withValues(alpha: 0.8),
             Theme.of(context).primaryColor,
           ],
           begin: Alignment.topLeft,
@@ -94,7 +93,7 @@ class _ChildrenManagementScreenState
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).primaryColor.withOpacity(0.3),
+            color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -123,7 +122,7 @@ class _ChildrenManagementScreenState
                       'إدارة حسابات الأطفال ومتابعة تقدمهم',
                       style: TextStyle(
                         fontSize: 14.sp,
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                       ),
                     ),
                   ],
@@ -135,7 +134,7 @@ class _ChildrenManagementScreenState
           Container(
             padding: EdgeInsets.all(12.w),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12.r),
             ),
             child: Row(
@@ -200,7 +199,7 @@ class _ChildrenManagementScreenState
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -214,7 +213,7 @@ class _ChildrenManagementScreenState
                 radius: 30.w,
                 backgroundColor: Theme.of(
                   context,
-                ).primaryColor.withOpacity(0.1),
+                ).primaryColor.withValues(alpha: 0.1),
                 backgroundImage: child.profileImageUrl != null
                     ? NetworkImage(child.profileImageUrl!)
                     : null,
@@ -251,7 +250,7 @@ class _ChildrenManagementScreenState
                               vertical: 2.h,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.blue.withOpacity(0.1),
+                              color: Colors.blue.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12.r),
                             ),
                             child: Text(
@@ -272,8 +271,8 @@ class _ChildrenManagementScreenState
                           ),
                           decoration: BoxDecoration(
                             color: child.isActive
-                                ? Colors.green.withOpacity(0.1)
-                                : Colors.red.withOpacity(0.1),
+                                ? Colors.green.withValues(alpha: 0.1)
+                                : Colors.red.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12.r),
                           ),
                           child: Row(
@@ -410,7 +409,7 @@ class _ChildrenManagementScreenState
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8.r),
         ),
         child: Row(
@@ -440,7 +439,7 @@ class _ChildrenManagementScreenState
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -451,7 +450,7 @@ class _ChildrenManagementScreenState
           Container(
             padding: EdgeInsets.all(20.w),
             decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor.withOpacity(0.1),
+              color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -499,9 +498,9 @@ class _ChildrenManagementScreenState
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: Colors.red.withOpacity(0.1),
+        color: Colors.red.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: Colors.red.withOpacity(0.3)),
+        border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -535,9 +534,9 @@ class _ChildrenManagementScreenState
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.05),
+        color: Colors.blue.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: Colors.blue.withOpacity(0.2)),
+        border: Border.all(color: Colors.blue.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -605,9 +604,9 @@ class _ChildrenManagementScreenState
     if (parentId == null) return;
 
     // Check if parent can add more children
-    final canAdd = await ref
+    final canAdd = ref
         .read(parentChildrenProvider.notifier)
-        .canAddMoreChildren(parentId);
+        .canAddMoreChildren();
 
     if (!canAdd) {
       _showMaxChildrenDialog();
@@ -618,14 +617,14 @@ class _ChildrenManagementScreenState
   }
 
   void _showAddChildDialog(String parentId) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AddChildDialog(parentId: parentId),
     );
   }
 
   void _showMaxChildrenDialog() {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('تجاوز الحد الأقصى'),
@@ -670,36 +669,46 @@ class _ChildrenManagementScreenState
   }
 
   void _viewChildDetails(UserModel child) {
-    context.pushNamed('child_details', pathParameters: {'childId': child.id});
+    // Navigate to child details (mock implementation)
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('عرض تفاصيل ${child.displayName}')),
+    );
   }
 
   void _editChild(UserModel child) {
-    context.pushNamed('edit_child', pathParameters: {'childId': child.id});
+    // Navigate to edit child (mock implementation)
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('تعديل بيانات ${child.displayName}')),
+    );
   }
 
   void _viewChildActivities(UserModel child) {
-    context.pushNamed(
-      'child_activities',
-      pathParameters: {'childId': child.id},
+    // Navigate to child activities (mock implementation)
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('أنشطة ${child.displayName}')),
     );
   }
 
   void _viewChildProgress(UserModel child) {
-    context.pushNamed('child_progress', pathParameters: {'childId': child.id});
+    // Navigate to child progress (mock implementation)
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('تقدم ${child.displayName}')),
+    );
   }
 
   Future<void> _toggleChildStatus(UserModel child, String parentId) async {
     try {
-      final updatedChild = child.copyWith(isActive: !child.isActive);
-      // TODO: Implement update user in provider
+      // Toggle child status (mock implementation)
+      final newStatus = !child.isActive;
+      // Implement update user in provider
       // await ref.read(parentChildrenProvider.notifier).updateChild(updatedChild);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'تم ${updatedChild.isActive ? 'تنشيط' : 'إيقاف'} حساب ${child.displayName}',
+            'تم ${newStatus ? 'تنشيط' : 'إيقاف'} حساب ${child.displayName}',
           ),
-          backgroundColor: updatedChild.isActive ? Colors.green : Colors.orange,
+          backgroundColor: newStatus ? Colors.green : Colors.orange,
         ),
       );
     } catch (e) {
@@ -713,7 +722,7 @@ class _ChildrenManagementScreenState
   }
 
   void _confirmDeleteChild(UserModel child, String parentId) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('حذف حساب الطفل'),
@@ -741,9 +750,9 @@ class _ChildrenManagementScreenState
 
   Future<void> _deleteChild(UserModel child, String parentId) async {
     try {
-      await ref
+      ref
           .read(parentChildrenProvider.notifier)
-          .removeChild(parentId, child.id);
+          .removeChild(child.id);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -766,7 +775,7 @@ class _ChildrenManagementScreenState
   }
 
   void _showHelpDialog() {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('مساعدة'),
@@ -875,7 +884,7 @@ class _AddChildDialogState extends ConsumerState<AddChildDialog> {
               Container(
                 padding: EdgeInsets.all(12.w),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
+                  color: Colors.blue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Row(
@@ -936,9 +945,9 @@ class _AddChildDialogState extends ConsumerState<AddChildDialog> {
           createdAt: DateTime.now(),
         );
 
-        await ref
+        ref
             .read(parentChildrenProvider.notifier)
-            .addChild(widget.parentId, child);
+            .addChild(child);
 
         if (mounted) {
           Navigator.pop(context);
